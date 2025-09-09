@@ -1,8 +1,10 @@
 AddMul {
-Expr = 
-  | Expr "*" Expr -- mul
-  | Expr "+" Expr  -- plus
-  | "(" Expr ")"  -- braces
-  | number -- num
-number = digit+
+Sum = Sum "+" Mul -- plus
+| Mul
+Mul = Mul "*" Atom -- mul 
+| Atom
+Atom = 
+| "(" Sum ")" -- braces 
+| number
+number = digit+ 
 }
