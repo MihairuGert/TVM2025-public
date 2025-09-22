@@ -4,7 +4,7 @@ Sum = Sum "+" Mul -- plus
 Mul = Mul "*" Atom -- mul 
 | Atom
 Atom = 
-| "(" Sum ")" -- braces 
+| "(" Sum ")" -- parenthesis 
 | number
 number = digit+ 
 }

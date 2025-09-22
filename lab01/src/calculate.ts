@@ -15,7 +15,7 @@ const addMulCalc = {
     Mul_mul(arg0 : any, arg1, arg2 : any) {
         return arg0.calculate() * arg2.calculate()
     },
-    Atom_braces(arg0, arg1 : any, arg2) {
+    Atom_parenthesis(arg0, arg1 : any, arg2) {
         return arg1.calculate()
     },
 } satisfies AddMulActionDict<number>
