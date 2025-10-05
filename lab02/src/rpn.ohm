@@ -1,6 +1,5 @@
 ReversePolishNotation {
-	Expr = Expr Expr "+" --sum
-    | Expr Expr "*" --mul
+	Expr = Expr Expr ("+" | "*") --bin
     | number
     number = digit+ 
 }
