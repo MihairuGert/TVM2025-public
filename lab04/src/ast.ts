@@ -33,3 +33,13 @@ export class Num extends Expr
     }
 }
 
+export class Var extends Expr
+{
+    name : string;
+        
+    constructor(name : string, par : boolean = false, minus : boolean = false) {
+        super(par, minus);
+        this.name = name;
+    }
+}
+

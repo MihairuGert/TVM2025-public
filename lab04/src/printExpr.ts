@@ -1,4 +1,4 @@
-import { Expr, Bin, Num } from "./ast";
+import { Expr, Bin, Num, Var } from "./ast";
 
 const PRECEDENCE: { [key: string]: number } = {
     '+': 1, '-': 1,
@@ -25,7 +25,9 @@ export function printExpr(e: Expr, doNeedPars?: boolean): string {
         
     } else if (e instanceof Num) {
         res = e.value;
+    } else if (e instanceof Var) {
+        res = e.name;
     }
     res = doNeedPars ? `(${res})` : res;
-    return (doNeedPars || e instanceof Num) && e.minus % 2 != 0 ? "-" + res : res;
+    return (doNeedPars || e instanceof Num || e instanceof Var) && e.minus % 2 != 0 ? "-" + res : res;
 }

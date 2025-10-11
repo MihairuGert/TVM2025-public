@@ -1,13 +1,13 @@
 import { grammar, MatchResult, NonterminalNode } from 'ohm-js';
 import { arithGrammar, ArithmeticActionDict, ArithmeticSemantics, SyntaxError } from '../../lab03';
-import { Bin, Expr, Num } from './ast';
+import { Bin, Expr, Num, Var } from './ast';
 
 export const getExprAst: ArithmeticActionDict<Expr> = {
     number_number(arg0: any) {
         return new Num(arg0.sourceString);
     },
     number_variable(arg0 : any) {
-        return new Num(arg0.sourceString);
+        return new Var(arg0.sourceString);
     },
     Sum(arg0) {
         return parseBinaryExpression(arg0, "+");
