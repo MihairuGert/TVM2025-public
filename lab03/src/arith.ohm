@@ -2,11 +2,14 @@ Arithmetic {
     Sum = NonemptyListOf<Sub, "+"> 
     Sub = NonemptyListOf<Mul, "-">
     Mul = NonemptyListOf<Div, "*">
-    Div = NonemptyListOf<Atom, "/">
+    Div = NonemptyListOf<UnaryMin, "/">
+    
+    UnaryMin = ("-")* Atom 
+    
     Atom = 
-    | "(" Sum ")" -- parenthesis 
-    | "-" Sum -- unaryMin
-    | number
+      | "(" Sum ")" -- parenthesis 
+      | number
+    
     number = digit+ --number 
-    | letter+ --variable
+            | letter+ --variable
 }

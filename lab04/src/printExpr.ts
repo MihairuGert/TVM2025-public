@@ -27,5 +27,5 @@ export function printExpr(e: Expr, doNeedPars?: boolean): string {
         res = e.value;
     }
     res = doNeedPars ? `(${res})` : res;
-    return doNeedPars && e.minus % 2 != 0 ? "-" + res : res;
+    return (doNeedPars || e instanceof Num) && e.minus % 2 != 0 ? "-" + res : res;
 }

@@ -26,16 +26,12 @@ export const getExprAst: ArithmeticActionDict<Expr> = {
         expr.parenthesis = true;
         return expr;
     }, 
-    Atom_unaryMin(arg0, arg1) {
-        const expr = arg1.parse();
-        if (expr instanceof Num)
-        {
-            expr.value = "-" + expr.value;
-        } else {
-            expr.minus++;
-        }
-        return expr;
-    },
+    UnaryMin(arg0, arg1) {
+        const minuses = arg0.children.length;
+        let atom = arg1.parse();
+        atom.minus += minuses;
+        return atom;
+    }
 }
 
 function parseBinaryExpression(arg0 : NonterminalNode, op : string): Expr {

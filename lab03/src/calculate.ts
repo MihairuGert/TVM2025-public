@@ -65,9 +65,15 @@ const arithCalc = {
     Atom_parenthesis(arg0, arg1, arg2) {
         return arg1.calculate(this.args.params);
     }, 
-    Atom_unaryMin(arg0, arg1) {
-        return -arg1.calculate(this.args.params);
-    },
+    UnaryMin(arg0, arg1) {
+        const minuses = arg0.children.length; 
+        const atom = arg1.calculate(this.args.params);
+        
+        if (minuses % 2 === 1) {
+            return -atom; 
+        }
+        return atom;
+    }
 } satisfies ArithmeticActionDict<number | undefined>;
 
 arithSemantics.addOperation<number>("calculate(params)", arithCalc);
