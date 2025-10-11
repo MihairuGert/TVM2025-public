@@ -9,10 +9,12 @@ const arithCalc = {
     },
     number_variable(arg0) {
         const varName = arg0.sourceString;
-        if (this.args.params[varName] !== undefined) {
-            return this.args.params[varName];
-        }
-        return NaN;
+
+        return this.args.params[varName] ?? NaN;
+        // if (this.args.params[varName] !== undefined) {
+        //     return this.args.params[varName];
+        // }
+        // return NaN;
     },
     Sum(arg0) {
         const values = arg0.asIteration().children.map(child => 
