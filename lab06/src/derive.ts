@@ -119,3 +119,7 @@ function simplify(e: Expr): Expr {
     }
     return e;
 }
+
+function simplifyReduce(e: Expr): Expr {
+    throw "asd";
+}
