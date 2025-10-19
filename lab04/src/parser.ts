@@ -1,12 +1,12 @@
 import { grammar, MatchResult, NonterminalNode } from 'ohm-js';
 import { arithGrammar, ArithmeticActionDict, ArithmeticSemantics, SyntaxError } from '../../lab03';
-import { Bin, Expr, Num, Var } from './ast';
+import { Bin, Expr, Num, UnMin, Var } from './ast';
 
 export const getExprAst: ArithmeticActionDict<Expr> = {
     number_number(arg0: any) {
         return new Num(arg0.sourceString);
     },
-    number_variable(arg0 : any) {
+    number_variable(arg0: any) {
         return new Var(arg0.sourceString);
     },
     Sum(arg0) {
@@ -29,12 +29,15 @@ export const getExprAst: ArithmeticActionDict<Expr> = {
     UnaryMin(arg0, arg1) {
         const minuses = arg0.children.length;
         let atom = arg1.parse();
-        atom.minus += minuses;
+        
+        for (let i = 0; i < minuses; i++) {
+            atom = new UnMin(atom);
+        }
         return atom;
     }
 }
 
-function parseBinaryExpression(arg0 : NonterminalNode, op : string): Expr {
+function parseBinaryExpression(arg0: NonterminalNode, op: string): Expr {
     const children = arg0.asIteration().children;
     const values = children.map(child => child.parse());
 

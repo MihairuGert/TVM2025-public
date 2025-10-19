@@ -1,5 +1,5 @@
 import { c as C, Op, I32 } from "../../wasm";
-import { Expr, Bin, Var, Num } from "../../lab04";
+import { Expr, Bin, Var, Num, UnMin } from "../../lab04";
 import { buildOneFunctionModule, Fn } from "./emitHelper";
 const { i32, get_local} = C;
     
@@ -49,12 +49,11 @@ function wasm(e: Expr, args: string[]): Op<I32> {
     else if (e instanceof Num) {
         result = i32.const(parseInt(e.value));
     }
+    else if (e instanceof UnMin) {
+        result = i32.sub(i32.const(0), wasm(e.arg, args));
+    }
     else {
         throw new Error(`Unknown class`);
-    }
-    
-    for (let i = 0; i < e.minus; i++) {
-        result = i32.sub(i32.const(0), result);
     }
     
     return result;

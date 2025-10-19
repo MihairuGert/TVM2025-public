@@ -1,6 +1,14 @@
-import { Expr } from "../../lab04";
+import { Expr, Num, Var, Bin } from "../../lab04";
 
 export function cost(e: Expr): number
 {
-    throw "Not implemented";
+    if (e instanceof Num) {
+        return 0;
+    }
+
+    if (e instanceof Var) {
+        return 1;
+    }
+
+    return 0;
 }

@@ -1,33 +1,43 @@
-import { Expr, Bin, Num, Var } from "./ast";
+import { Expr, Bin, Num, Var, UnMin } from "./ast";
 
 const PRECEDENCE: { [key: string]: number } = {
     '+': 1, '-': 1,
-    '*': 2, '/': 2
+    '*': 2, '/': 2,
+    'unary-': 3  
 };
 
-export function printExpr(e: Expr, doNeedPars?: boolean): string {
-    let res: string = "";
-    
+export function printExpr(e: Expr, parentPrecedence: number = 0): string {
     if (e instanceof Bin) {
-        const left = printExpr(e.arg0);
-        const right = printExpr(e.arg1);
+        const currentPrecedence = PRECEDENCE[e.op];
+        const left = printExpr(e.arg0, currentPrecedence);
+        const right = printExpr(e.arg1, currentPrecedence + (e.op === '-' || e.op === '/' ? 0.1 : 0));
         
-        const rightNeedsParens = e.arg1 instanceof Bin && PRECEDENCE[e.op] > PRECEDENCE[e.arg1.op]
-        || e.op == "-" && e.arg1 instanceof Bin && e.arg1.parenthesis
-        || e.op == "/" && e.arg1 instanceof Bin && e.arg1.parenthesis;
-
-        const leftNeedsParens = e.arg0 instanceof Bin && PRECEDENCE[e.op] > PRECEDENCE[e.arg0.op];
+        let result = `${left} ${e.op} ${right}`;
         
-        const finalRight = rightNeedsParens ? `(${right})` : right;
-        const finalLeft = leftNeedsParens ? `(${left})` : left;
+        if (parentPrecedence > currentPrecedence) {
+            result = `(${result})`;
+        }
         
-        res = `${finalLeft} ${e.op} ${finalRight}`;
+        return result;
+        
+    } else if (e instanceof UnMin) {
+        const currentPrecedence = PRECEDENCE['unary-'];
+        const inner = printExpr(e.arg, currentPrecedence);
+        
+        let result = `-${inner}`;
+        
+        if (parentPrecedence > currentPrecedence || 
+            (e.arg instanceof Bin && PRECEDENCE[e.arg.op] < currentPrecedence)) {
+            result = `(${result})`;
+        }
+        
+        return result;
         
     } else if (e instanceof Num) {
-        res = e.value;
+        return e.value;
     } else if (e instanceof Var) {
-        res = e.name;
+        return e.name;
     }
-    res = doNeedPars ? `(${res})` : res;
-    return (doNeedPars || e instanceof Num || e instanceof Var) && e.minus % 2 != 0 ? "-" + res : res;
+    
+    return "";
 }
