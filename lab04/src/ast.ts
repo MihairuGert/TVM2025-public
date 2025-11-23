@@ -1,8 +1,10 @@
 export abstract class Expr {
     parenthesis: boolean;
+    type : string;
     
     constructor(parenthesis: boolean = false) {
         this.parenthesis = parenthesis;
+        this.type = "expr";
     }
     
     abstract copy(): Expr;
@@ -18,6 +20,7 @@ export class Bin extends Expr {
         this.op = op;
         this.arg0 = arg0;
         this.arg1 = arg1;
+        this.type = "bin";
     }
     
     copy(): Expr {
@@ -31,6 +34,7 @@ export class Num extends Expr {
     constructor(value: string, par: boolean = false) {
         super(par);
         this.value = value;
+        this.type = "num";
     }
     
     copy(): Expr {
@@ -44,6 +48,7 @@ export class Var extends Expr {
     constructor(name: string, par: boolean = false) {
         super(par);
         this.name = name;
+        this.type = "var";
     }
     
     copy(): Expr {
@@ -57,6 +62,7 @@ export class UnMin extends Expr {
     constructor(arg: Expr, par: boolean = false) {
         super(par);
         this.arg = arg;
+        this.type = "unmin";
     }
     
     copy(): Expr {

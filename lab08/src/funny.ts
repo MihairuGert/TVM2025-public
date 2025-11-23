@@ -1,15 +1,17 @@
 import * as arith from "@tvm/lab04";
 
 export interface Position {
-  line: number;
-  column: number;
+    line: number;
+    column: number;
+}
+
+export interface Location {
+    start: Position;
+    end: Position;
 }
 
 export interface Located {
-  location?: {
-    start: Position;
-    end: Position;
-  };
+    location?: Location;
 }
 
 export interface Module
@@ -28,6 +30,12 @@ export interface FunctionDef
     loc: Located;
 }
 
+export interface Type
+{
+    type: "type"
+    name: string
+    isArray : boolean
+}
 export interface ParameterDef
 {
     type: "param";
@@ -37,7 +45,7 @@ export interface ParameterDef
 
 export type LValue = (SingleLValue | ArrLValue) & Located;
 export interface SingleLValue {
-  type: "lvar";
+  type: "lsingvar";
   name: string;
 }
 export interface ArrLValue {
@@ -49,8 +57,8 @@ export interface ArrLValue {
 export type Statement = (Ass | Cond | Loop | Blk) & Located;
 export interface Ass {
     type: "assign";
-    targets: LValue[];
-    exprs: Expr[];
+    left: LValue[];
+    right: Expr[];
 }
 export interface Cond {
     type: "if";

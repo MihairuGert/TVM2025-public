@@ -1,20 +1,24 @@
 Funny <: Arithmetic {  
   Module = Function+
   
-  Function = variable "(" ParameterList? ")" 
-             ("requires" Predicate)? 
-             "returns" ReturnList
-             ("ensures" Predicate)?
-             ("uses" UsesList)?
+  Function = variable "(" ParameterList ")" 
+             Preopt? 
+             ReturnList
+             Postopt?
+             Useopt?
              Statement
   
-  ParameterList = NonemptyListOf<VarDecl, ",">
-  ReturnList = NonemptyListOf<VarDecl, ",">
-  UsesList = NonemptyListOf<VarDecl, ",">
+  Preopt = "requires" Predicate
+  Postopt = "ensures" Predicate
+  Useopt = ("uses" ParameterList)
+  ParameterList = ListOf<VarDecl, ",">
+  ParameterListNotEmpty = NonemptyListOf<VarDecl, ",">
+  ReturnList = "returns" ParameterListNotEmpty   
   
   VarDecl = variable ":" Type
 
-  Type = "int" | "int[]"
+  Type = "int" --int 
+       | "int[]" --int_arr
 
   Statement = Assignment | Conditional | Loop | Block
   Expression = Sum
@@ -22,26 +26,27 @@ Funny <: Arithmetic {
   Assignment = 
       | LValue "=" Expression ";"                          -- simple
       | ArrayAccess "=" Expression ";"                     -- array
-      | NonemptyListOf<LValue, ","> "=" FunctionCall ";"  -- tuple
+      | ListOf<LValue, ","> "=" FunctionCall ";"  -- tuple
   
   LValue = variable
   
   Conditional = "if" "(" Condition ")" Statement ("else" Statement)?
   
   Loop = "while" "(" Condition ")" 
-         ("invariant" Predicate)?
+         Invariant?
          Statement
-  
+  Invariant = ("invariant" Predicate)
   Block = "{" Statement* "}"
   
-  FunctionCall = variable "(" ArgumentList? ")"
-  ArgumentList = NonemptyListOf<Expression, ",">
+  FunctionCall = variable "(" ArgumentList ")"
+  ArgumentList = ListOf<Expression, ",">
   
   ArrayAccess = variable "[" Expression "]"
   
   Condition = 
-      | "true" | "false" --c
-      | Comparison 
+      | "true" --true
+      | "false" --false
+      | Comparison --comp
       | "not" Condition --not
       | Condition "and" Condition --and
       | Condition "or" Condition --or
@@ -57,10 +62,11 @@ Funny <: Arithmetic {
       | Expression "<" Expression
   
   Predicate = 
-      | Quantifier
-      | FormulaRef
-      | "true" | "false"
-      | Comparison
+      | Quantifier --quant
+      | FormulaRef --formulaRef
+      | "true" --true
+      | "false" --false
+      | Comparison --comp
       | "not" Predicate --not
       | Predicate "and" Predicate --and
       | Predicate "or" Predicate --or
@@ -71,8 +77,8 @@ Funny <: Arithmetic {
   FormulaRef = variable "(" ArgumentList? ")"
   
   Atom := 
-      | variable "(" ArgumentList? ")"  -- function_call
-      | variable "[" Expression "]"     -- array_access  
+      | FunctionCall
+      | ArrayAccess
       | ...                
   
     space := " " | "\t" | "\n" | comment | ...
