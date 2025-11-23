@@ -12,4 +12,6 @@ Arithmetic {
     
     number = digit+ --number 
             | letter+ --variable
+
+    variable = letter (letter | digit)*
 }
