@@ -3,7 +3,7 @@ import * as ast from './funny';
 
 import grammar, { FunnyActionDict } from './funny.ohm-bundle';
 
-import { MatchResult, Not, Semantics } from 'ohm-js';
+import { MatchResult, NonterminalNode, Not, Semantics } from 'ohm-js';
 
 function collectList<T>(node: any): T[] {
     return node.asIteration().children.map((c: any) => c.parse() as T);
@@ -72,13 +72,13 @@ export const getFunnyAst = {
     
     Function(name, left_paren, params_opt, right_paren, preopt, returns_list, postopt, useopt, statement: any) {
         const func_name = name.sourceString;
-        const func_parameters = params_opt.parse();
+        const func_parameters: ast.ParameterDef[] = params_opt.parse();
         //const preopt_ast = preopt.parse() ? preopt : null;
-        const return_array = returns_list.parse();
+        const return_array: ast.ParameterDef[] = returns_list.parse();
         //const postopt_ast = postopt.parse() ? postopt : null;
 
         // uses
-        const locals_array = parseOptional<ast.ParameterDef[]>(useopt, []);
+        const locals_array: ast.ParameterDef[] = parseOptional<ast.ParameterDef[]>(useopt, []);
 
         const all = [...func_parameters, ...return_array, ...locals_array];
         checkUniqueNames(all, "variable");
@@ -245,17 +245,17 @@ export const getFunnyAst = {
        return {type: "and", left: left.parse(), right: right.parse()};
     },
     
-    Predicate_not(not, right: any) {
+    Predicate_not(not, right: NonterminalNode) {
        return {type: "not", right: right.parse()};
     },
     
-    Predicate_parent(arg0, arg1, arg2) {
+    Predicate_parent(_arg0, arg1, _arg2) {
         return arg1.parse();
     },
     
-    Predicate_comp(arg0) {
-        return arg0.parse();
-    },
+    // Predicate_comp(arg0) {
+    //     return arg0.parse();
+    // },
     
     Predicate_false(arg) {
         return {type: "false"};
@@ -337,7 +337,7 @@ function getLocation(ctx: any): ast.Location | undefined {
     return undefined;
 }
 
-export function checkUniqueNames(params: ast.ParameterDef[] | ast.ParameterDef, type: string) {
+export function checkUniqueNames(params: ast.ParameterDef[], type: string) {
     if (!Array.isArray(params))
         return;
 
