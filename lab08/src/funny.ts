@@ -1,4 +1,5 @@
 import * as arith from "@tvm/lab04";
+import { validateHeaderName } from "http";
 
 export interface Position {
     line: number;
@@ -38,9 +39,10 @@ export interface Type
 }
 export interface ParameterDef
 {
-    type: "param";
-    name: string;
-    loc: Located;
+    type:       "param";
+    name:       string;
+    varType:    Type;
+    loc:        Located;
 }
 
 export type LValue = (SingleLValue | ArrLValue) & Located;

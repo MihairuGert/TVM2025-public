@@ -29,11 +29,10 @@ export const getFunnyAst = {
     VarDecl(name, _, type: any) {
         let paramName = name.sourceString;
         const typeAst = type.parse();
-        const varType = typeAst && typeAst.isArray ? "int[]" : "int";
         return {
             type: "param", 
             name: paramName, 
-            varType: varType, 
+            varType: typeAst, 
             loc: getLocation(this)
         } as ast.ParameterDef;
     },
