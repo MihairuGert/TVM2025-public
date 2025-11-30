@@ -13,14 +13,15 @@ Funny <: Arithmetic {
   Useopt = ("uses" ParameterList)
   ParameterList = ListOf<VarDecl, ",">
   ParameterListNotEmpty = NonemptyListOf<VarDecl, ",">
-  ReturnList = "returns" ParameterListNotEmpty   
+  ReturnList = "returns" ParameterListNotEmpty --paramlist 
+  |  "returns" "void" --void
   
   VarDecl = variable ":" Type
 
-  Type = "int" --int 
-       | "int[]" --int_arr
+  Type = "int[]" --int_arr
+       | "int" --int
 
-  Statement = Assignment | Conditional | Loop | Block
+  Statement = Assignment | Conditional | Loop | Block | Expression ";" --expr
   Expression = Sum
   
   Assignment = 
@@ -62,19 +63,20 @@ Funny <: Arithmetic {
       | Expression "<" Expression
   
   Predicate = 
+  	  | Predicate "->" Predicate --imp
+      | Predicate "or" Predicate --or
+      | Predicate "and" Predicate --and
+      | "not" Predicate --not
       | Quantifier --quant
       | FormulaRef --formulaRef
       | "true" --true
       | "false" --false
       | Comparison --comp
-      | "not" Predicate --not
-      | Predicate "and" Predicate --and
-      | Predicate "or" Predicate --or
       | "(" Predicate ")" --parent
   
   Quantifier = ("forall" | "exists") "(" VarDecl "|" Predicate ")"
   
-  FormulaRef = variable "(" ArgumentList? ")"
+  FormulaRef = variable "(" ParameterList ")"
   
   Atom := 
       | FunctionCall

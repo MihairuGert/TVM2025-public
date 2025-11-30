@@ -1,15 +1,16 @@
 import { getExprAst, Var } from '../../lab04';
 import * as ast from './funny';
+import { Predicate } from './funny';
 
 import grammar, { FunnyActionDict } from './funny.ohm-bundle';
 
 import { MatchResult, NonterminalNode, Not, Semantics } from 'ohm-js';
 
-function collectList<T>(node: any): T[] {
+export function collectList<T>(node: any): T[] {
     return node.asIteration().children.map((c: any) => c.parse() as T);
 }
 
-function parseOptional<T>(node: any, ifzero: T): T {
+export function parseOptional<T>(node: any, ifzero: T): T {
     return node.children.length > 0
         ? (node.child(0).parse() as T)
         : ifzero;
@@ -53,8 +54,12 @@ export const getFunnyAst = {
         return collectList<ast.ParameterDef>(list);
     },
     
-    ReturnList(_, list) {
+    ReturnList_paramlist(_, list) {
         return list.parse() as ast.ParameterDef[];
+    },
+
+    ReturnList_void(arg0, arg1) {
+        return [] as ast.ParameterDef[];
     },
     
     Preopt(_, pred) {
@@ -70,46 +75,44 @@ export const getFunnyAst = {
     },
     
     Function(name, left_paren, params_opt, right_paren, preopt, returns_list, postopt, useopt, statement: any) {
-        const func_name = name.sourceString;
-        const func_parameters: ast.ParameterDef[] = params_opt.parse();
-        //const preopt_ast = preopt.parse() ? preopt : null;
-        const return_array: ast.ParameterDef[] = returns_list.parse();
-        //const postopt_ast = postopt.parse() ? postopt : null;
+    const func_name = name.sourceString;
+    const func_parameters: ast.ParameterDef[] = params_opt.parse();
+    const return_array: ast.ParameterDef[] = returns_list.parse();
 
-        // uses
-        const locals_array: ast.ParameterDef[] = parseOptional<ast.ParameterDef[]>(useopt, []);
+    // uses
+    const locals_array: ast.ParameterDef[] = parseOptional<ast.ParameterDef[]>(useopt, []);
 
-        const all = [...func_parameters, ...return_array, ...locals_array];
-        checkUniqueNames(all, "variable");
-        
-        const declared = new Set<string>();
-        for (const i of func_parameters) {
-            declared.add(i.name);
+    const all = [...func_parameters, ...return_array, ...locals_array];
+    checkUniqueNames(all, "variable");
+    
+    const declared = new Set<string>();
+    for (const i of func_parameters) {
+        declared.add(i.name);
+    }
+    for (const i of return_array) {
+        declared.add(i.name);
+    }
+    for (const i of locals_array) {
+        declared.add(i.name);
+    }
+    const used_in_body = new Set<string>();
+    const parsedStatement = statement.parse() as ast.Statement;
+
+    collectNamesInNode(parsedStatement, used_in_body);
+
+    for (const name of used_in_body) {
+        if (!declared.has(name)) {
+            throw new Error("Function: local variable " + name + " is not declared");
         }
-        for (const i of return_array) {
-            declared.add(i.name);
-        }
-        for (const i of locals_array) {
-            declared.add(i.name);
-        }
-        const used_in_body = new Set<string>();
-        const parsedStatement = statement.parse() as ast.Statement;
+    }
 
-        collectNamesInNode(parsedStatement, used_in_body);
-
-        for (const name of used_in_body) {
-            if (!declared.has(name)) {
-                throw new Error("Function: local variable " + name + " is not declared");
-            }
-        }
-
-        return { 
-            type: "func", 
-            name: func_name, 
-            parameters: func_parameters, 
-            returns: return_array, 
-            locals: locals_array, 
-            body: parsedStatement 
+    return { 
+        type: "func", 
+        name: func_name, 
+        parameters: func_parameters, 
+        returns: return_array, 
+        locals: locals_array, 
+        body: parsedStatement 
         } as ast.FunctionDef;
     },
 
@@ -173,6 +176,10 @@ export const getFunnyAst = {
             invariant: invariant, 
             body: then_parsed 
         } as ast.Loop;
+    },
+
+    Statement_expr(arg0, arg1) {
+        return arg0.parse();
     },
 
     Invariant(_inv, predicate: any) {
@@ -247,6 +254,12 @@ export const getFunnyAst = {
     Predicate_not(not, right: NonterminalNode) {
        return {type: "not", right: right.parse()};
     },
+
+    Predicate_imp(left, arrow, right: any) {
+        const parsedLeft = left.parse();
+        const notLeft = {type: "not", predicate: parsedLeft} as Predicate;
+        return {type: "or", left: notLeft, right: right.parse()} as Predicate;    
+    },
     
     Predicate_parent(_arg0, arg1, _arg2) {
         return arg1.parse();
@@ -320,7 +333,7 @@ export function parseFunny(source: string): ast.Module
     return ast_module;
 }
 
-function getLocation(ctx: any): ast.Location | undefined {
+export function getLocation(ctx: any): ast.Location | undefined {
     if (ctx.interval && ctx.source) {
         return {
             start: {
@@ -408,7 +421,7 @@ export function collectNamesInNode(node: any, out: Set<string>) {
     }
 }
 
-function checkFunctionCalls(module: ast.Module) {
+export function checkFunctionCalls(module: ast.Module) {
     const functionTable = new Map<string, {
         paramsCount: number, 
         returnsCount: number 
